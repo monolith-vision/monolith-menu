@@ -19,7 +19,7 @@
 ---@class Component:MenuComponent
 ---@field private on fun(self: self, action: MenuComponentAction, func: function)
 ---@field Trigger fun(self: self, action: MenuComponentAction, ...: any)
----@field OnChange fun(self: self, func: fun(current: string, index: number))
+---@field OnChange fun(self: self, func: fun(current: number | string, index: number?))
 ---@field OnClick fun(self: self, func: fun())
 ---@field OnCheck fun(self: self, func: fun(checked: boolean))
 
@@ -104,6 +104,10 @@ end
 ---@param value string
 ---@return MenuReturn?
 function Menu:Find(value)
+  if not value or type(value) ~= 'string' then
+    return;
+  end
+
   for _, menu in next, self.cached do
     if menu.id == value then
       return menu;
@@ -354,14 +358,20 @@ exports('OnNUICallback', function(action, req, resp)
     end
 
     if action == 'onChange' then
+      PlaySoundFrontend(-1, 'NAV_LEFT_RIGHT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
+
       if component.type == 'slider' then
         component:Trigger('change', req.component.value);
       else
-        component:Trigger('change', req.component.values[req.component.value], req.component.value);
+        component:Trigger('change', req.component.values[req.component.value + 1], req.component.value + 1);
       end
     elseif action == 'onCheck' then
+      PlaySoundFrontend(-1, 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
+
       component:Trigger('check', req.component.checked);
     elseif action == 'onClick' then
+      PlaySoundFrontend(-1, 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
+
       if component.type == 'submenu' and type(component.subMenuId) == 'string' then
         local submenu = Menu:Find(component.subMenuId);
 
@@ -377,6 +387,8 @@ exports('OnNUICallback', function(action, req, resp)
       end
 
       component:Trigger('click');
+    elseif action == 'onComponentSelect' then
+      PlaySoundFrontend(-1, 'NAV_UP_DOWN', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
     end
 
     return resp('OK');
@@ -395,6 +407,8 @@ exports('OnNUICallback', function(action, req, resp)
   elseif action == 'Exit' then
     Menu:Hide();
   end
+
+  PlaySoundFrontend(-1, 'BACK', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
 
   resp('OK');
 end);
