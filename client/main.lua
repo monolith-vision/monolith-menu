@@ -10,10 +10,6 @@ exports('SendNUIMessage', function(message)
   SendNUIMessage(message);
 end);
 
-exports('getLib', function()
-  return Console;
-end);
-
 local nuiCallbacks = {
   'onChange',
   'onCheck',

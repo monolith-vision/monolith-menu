@@ -1,6 +1,6 @@
 ---@alias MenuComponentType 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox'
 ---@alias MenuComponentAction 'change' | 'click' | 'check'
----@alias MenuPosition 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+---@alias MenuPositions 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
 
 ---@class MenuComponent
 ---@field __events { [string]: function[] }
@@ -29,7 +29,7 @@
 ---@field id string
 ---@field title string
 ---@field description string?
----@field position MenuPosition
+---@field position MenuPositions
 ---@field banner string?
 ---@field components Component[]
 
@@ -50,7 +50,6 @@
 
 local RESOURCE <const> = GetCurrentResourceName();
 local import <const> = exports['monolith-menu'];
-local Console <const> = import:getLib();
 
 ---@type fun(message: any)
 local SendNUIMessage <const> = function(message)
@@ -117,17 +116,17 @@ end
 
 ---@param menuTitle string
 ---@param menuDescription string?
----@param menuPosition MenuPosition?
+---@param MenuPositions MenuPositions?
 ---@param menuBanner string?
 ---@return MenuReturn
-function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
+function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   local menu = {
     __resource = RESOURCE,
     __index = #self.cached + 1,
     id = self:UUID('menu_xxyyxx-yyxxyy'),
     title = menuTitle,
     description = menuDescription,
-    position = menuPosition or 'top-left',
+    position = MenuPositions or 'top-left',
     banner = menuBanner,
     ---@type Component[]
     components = {}
@@ -170,7 +169,7 @@ function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
     ---@param func function
     function component:on(action, func)
       if not self.__events[action] then
-        return Console.Error('`' .. action .. '` is not an valid event.');
+        return;
       end
 
       self.__events[action][#self.__events[action] + 1] = func;
@@ -376,8 +375,6 @@ exports('OnNUICallback', function(action, req, resp)
         local submenu = Menu:Find(component.subMenuId);
 
         if not submenu then
-          Console.Error('Submenu (' .. component.subMenuId .. ') does not exist');
-
           return resp('OK');
         end
 

@@ -12,7 +12,4 @@ files {
   'menu.lua'
 }
 
-client_scripts {
-  'client/main.lua',
-  'lib/console.lua'
-}
+client_script 'client/main.lua'
