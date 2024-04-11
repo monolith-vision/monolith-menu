@@ -167,16 +167,19 @@ menu.toJSON(self: this): MenuJSON
 - component refers to the return value of [AddPlaceholder](#AddPlaceholder)/[AddButton](#AddButton)/[AddSubmenu](#AddSubmenu)/[AddSlider](#AddSlider)/[AddCheckbox](#AddCheckbox)/[AddList](#AddList)
 
 ### OnClick
+- Gets executed when a button, or submenu Component gets clicked
 ```ts
 menu.OnClick(self: this, () => {})
 ```
 
 ### OnCheck
+- Gets executed when a checkbox is toggled
 ```ts
 menu.OnCheck(self: this, (checked: boolean) => {})
 ```
 
 ### OnChange
+- Gets executed when a slider, or list value is changed. If it's a slider, `current` will be a `number` and `index` `nil`
 ```ts
 menu.OnChange(self: this, (current: number | string, index?: number) => {})
 ```
