@@ -1,6 +1,6 @@
 # monolith-menu
 
-## Types
+# Types
 ```ts
 type MenuComponentTypes = 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox';
 type MenuComponentAction = 'change' | 'click' | 'check';
@@ -57,33 +57,131 @@ interface Menu extends MenuJSON {
 }
 ```
 
-## API
+# Menu API
 ### UUID
+- Creates an UUID
 ```ts
 Menu.UUID(self: this): string
 ```
 
 ### Show
+- Shows the specified Menu
 ```ts
 Menu.Show(self: this, menu: MenuJSON | Menu);
 ```
 
 ### Hide
+- Hides all Menus
 ```ts
 Menu.Hide(self: this);
 ```
 
 ### Find
+- Finds a Menu using the id of it
 ```ts
 Menu.Find(self: this, value: string): Menu?
 ```
 
-### Create
+### <a name="Create"></a> Create
+- Creates a new Menu
 ```ts
 Menu.Create(self: this, title: string, description?: string, position?: MenuPositions, banner?: string): Menu
 ```
 
-## Example Usage
+# Menu Functions
+- menu refers to the return value of [Menu#Create](#Create)
+
+### FindComponent
+- Finds a Menu Component using the type, or id of it
+```ts
+menu.FindComponent(self: this, value: string): MenuComponent?
+```
+
+### RemoveComponent
+- Removes the specified Component from the Menu
+```ts
+menu.RemoveComponent(self: this, component: MenuComponentJSON | MenuComponent): boolean
+```
+
+### <a name="AddPlaceholder"></a> AddPlaceholder
+- Adds a text, which is centered and can't be selected
+```ts
+menu.AddPlaceholder(self: this, label: string): MenuComponent
+```
+
+### <a name="AddButton"></a> AddButton
+- Adds a button
+```ts
+menu.AddButton(self: this, label: string, description?: string): MenuComponent
+```
+
+### <a name="AddSubmenu"></a> AddSubmenu
+- Adds a button, which opens another menu upon click
+```ts
+menu.AddSubmenu(self: this, subMenu: MenuJSON | Menu, label: string, description?: string): MenuComponent
+```
+
+### <a name="AddSlider"></a> AddSlider
+- Adds an range input
+```ts
+menu.AddSlider(self: this, label: string, description?: string, value: number, min?: number, max: number, step?: number): MenuComponent
+```
+
+### <a name="AddCheckbox"></a> AddCheckbox
+- Adds a checkbox
+```ts
+menu.AddCheckbox(self: this, label: string, description?: string, checked?: boolean): MenuComponent
+```
+
+### <a name="AddList"></a> AddList
+- Adds a list
+```ts
+menu.AddList(self: this, label: string, description?: string, values: string[], value?: number): MenuComponent
+```
+
+### Show
+- Shows the current menu
+```ts
+menu.Show(self: this)
+```
+
+### Hide
+- Hides all menus
+```ts
+menu.Hide(self: this)
+```
+
+### componentsToJSON
+- Strips all functions of of the Menu Components
+```ts
+menu.componentsToJSON(self: this): MenuComponentsJSON[]
+```
+
+### toJSON
+- Strips all functions of of the Menu
+```ts
+menu.toJSON(self: this): MenuJSON
+```
+
+# Components API
+- component refers to the return value of [AddPlaceholder](#AddPlaceholder)/[AddButton](#AddButton)/[AddSubmenu](#AddSubmenu)/[AddSlider](#AddSlider)/[AddCheckbox](#AddCheckbox)/[AddList](#AddList)
+
+### OnClick
+```ts
+menu.OnClick(self: this, () => {})
+```
+
+### OnCheck
+```ts
+menu.OnCheck(self: this, (checked: boolean) => {})
+```
+
+### OnChange
+```ts
+menu.OnChange(self: this, (current: number | string, index?: number) => {})
+```
+
+# Example Usage
 `fxmanifest.lua`
 ```lua
 client_scripts {
