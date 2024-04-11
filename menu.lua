@@ -1,11 +1,11 @@
----@alias MenuComponentType 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox'
+---@alias MenuComponentTypes 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox'
 ---@alias MenuComponentAction 'change' | 'click' | 'check'
 ---@alias MenuPositions 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
 
----@class MenuComponent
+---@class MenuComponentJSON
 ---@field __events { [string]: function[] }
 ---@field id string
----@field type MenuComponentType
+---@field type MenuComponentTypes
 ---@field label string
 ---@field description string?
 ---@field values string[]?
@@ -16,14 +16,14 @@
 ---@field checked boolean?
 ---@field subMenuId string?
 
----@class Component:MenuComponent
+---@class MenuComponent:MenuComponentJSON
 ---@field private on fun(self: self, action: MenuComponentAction, func: function)
 ---@field Trigger fun(self: self, action: MenuComponentAction, ...: any)
 ---@field OnChange fun(self: self, func: fun(current: number | string, index: number?))
 ---@field OnClick fun(self: self, func: fun())
 ---@field OnCheck fun(self: self, func: fun(checked: boolean))
 
----@class Menu
+---@class MenuJSON
 ---@field __resource string
 ---@field __index number
 ---@field id string
@@ -31,22 +31,22 @@
 ---@field description string?
 ---@field position MenuPositions
 ---@field banner string?
----@field components Component[]
+---@field components MenuComponent[]
 
----@class MenuReturn:Menu
----@field private addComponent fun(self: self, componentType: MenuComponentType, label: string, description: string?, values: string[]?, value: number?, step: number?, min: number?, max: number?, checked: boolean?, subMenuId: string?): Component
----@field FindComponent fun(self: self, value: string): Component?
----@field RemoveComponent fun(self: self, component: MenuComponent): boolean
----@field AddPlaceholder fun(self: self, label: string): Component
----@field AddButton fun(self: self, label: string, description: string?): Component
----@field AddSubmenu fun(self: self, subMenu: Menu, label: string, description: string?): Component
----@field AddSlider fun(self: self, label: string, description: string?, value: number?, min: number?, max: number, step: number?): Component
----@field AddCheckbox fun(self: self, label: string, description: string?, checked?: boolean): Component
----@field AddList fun(self: self, label: string, description: string?, values: string[], value: number?): Component
+---@class Menu:MenuJSON
+---@field private addComponent fun(self: self, componentType: MenuComponentTypes, label: string, description: string?, values: string[]?, value: number?, step: number?, min: number?, max: number?, checked: boolean?, subMenuId: string?): MenuComponent
+---@field FindComponent fun(self: self, value: string): MenuComponent?
+---@field RemoveComponent fun(self: self, component: MenuComponentJSON): boolean
+---@field AddPlaceholder fun(self: self, label: string): MenuComponent
+---@field AddButton fun(self: self, label: string, description: string?): MenuComponent
+---@field AddSubmenu fun(self: self, subMenu: MenuJSON | Menu, label: string, description: string?): MenuComponent
+---@field AddSlider fun(self: self, label: string, description: string?, value: number?, min: number?, max: number, step: number?): MenuComponent
+---@field AddCheckbox fun(self: self, label: string, description: string?, checked?: boolean): MenuComponent
+---@field AddList fun(self: self, label: string, description: string?, values: string[], value: number?): MenuComponent
 ---@field Show fun(self: self)
 ---@field Hide fun()
----@field componentsToJSON fun(self: self): MenuComponent[]
----@field toJSON fun(self: self): Menu
+---@field componentsToJSON fun(self: self): MenuComponentJSON[]
+---@field toJSON fun(self: self): MenuJSON
 
 local RESOURCE <const> = GetCurrentResourceName();
 local import <const> = exports['monolith-menu'];
@@ -74,7 +74,7 @@ function Menu:UUID(template)
   return uuid;
 end
 
----@param menu Menu | MenuReturn
+---@param menu MenuJSON | Menu
 function Menu:Show(menu)
   self.current = menu;
 
@@ -101,7 +101,7 @@ function Menu:Hide()
 end
 
 ---@param value string
----@return MenuReturn?
+---@return Menu?
 function Menu:Find(value)
   if not value or type(value) ~= 'string' then
     return;
@@ -116,24 +116,24 @@ end
 
 ---@param menuTitle string
 ---@param menuDescription string?
----@param MenuPositions MenuPositions?
+---@param menuPosition MenuPositions?
 ---@param menuBanner string?
----@return MenuReturn
-function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
+---@return Menu
+function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
   local menu = {
     __resource = RESOURCE,
     __index = #self.cached + 1,
     id = self:UUID('menu_xxyyxx-yyxxyy'),
     title = menuTitle,
     description = menuDescription,
-    position = MenuPositions or 'top-left',
+    position = menuPosition or 'top-left',
     banner = menuBanner,
-    ---@type Component[]
+    ---@type MenuComponent[]
     components = {}
   };
 
   ---@private
-  ---@param componentType MenuComponentType
+  ---@param componentType MenuComponentTypes
   ---@param label string
   ---@param description string?
   ---@param values string[]?
@@ -207,7 +207,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   end
 
   ---@param value string
-  ---@return Component?
+  ---@return MenuComponent?
   function menu:FindComponent(value)
     for _, component in next, self.components do
       if component.id == value or component.type == value then
@@ -216,7 +216,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
     end
   end
 
-  ---@param component MenuComponent
+  ---@param component MenuComponentJSON
   ---@return boolean
   function menu:RemoveComponent(component)
     if not component then
@@ -234,22 +234,22 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   end
 
   ---@param label string
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddPlaceholder(label)
     return self:addComponent('placeholder', label);
   end
 
   ---@param label string
   ---@param description string?
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddButton(label, description)
     return self:addComponent('button', label, description);
   end
 
-  ---@param subMenu Menu
+  ---@param subMenu MenuJSON | Menu
   ---@param label string
   ---@param description string?
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddSubmenu(subMenu, label, description)
     return self:addComponent('submenu', label, description, nil, nil, nil, nil, nil, nil, subMenu.id);
   end
@@ -260,7 +260,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   ---@param min number?
   ---@param max number
   ---@param step number?
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddSlider(label, description, value, min, max, step)
     return self:addComponent('slider', label, description, nil, value, step, min, max);
   end
@@ -269,7 +269,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   ---@param description string?
   ---@param values string[]
   ---@param value number?
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddList(label, description, values, value)
     return self:addComponent('list', label, description, values, (value - 1) or 0);
   end
@@ -277,7 +277,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
   ---@param label string
   ---@param description string?
   ---@param checked boolean?
-  ---@return Component
+  ---@return MenuComponent
   function menu:AddCheckbox(label, description, checked)
     return self:addComponent('checkbox', label, description, nil, nil, nil, nil, nil, checked or false);
   end
@@ -290,7 +290,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
     Menu:Hide();
   end
 
-  ---@return MenuComponent[]
+  ---@return MenuComponentJSON[]
   function menu:componentsToJSON()
     local components = {};
 
@@ -314,7 +314,7 @@ function Menu:Create(menuTitle, menuDescription, MenuPositions, menuBanner)
     return components;
   end
 
-  ---@return Menu
+  ---@return MenuJSON
   function menu:toJSON()
     return {
       __resource = self.__resource,
@@ -340,7 +340,7 @@ local needsComponents <const> = {
 };
 
 ---@param action 'onChange' | 'onCheck' | 'onClick' | 'onComponentSelect' | 'Back' | 'Exit'
----@param req { component?: MenuComponent, menu: Menu }
+---@param req { component?: MenuComponentJSON, menu: MenuJSON }
 ---@param resp function
 exports('OnNUICallback', function(action, req, resp)
   local menu = Menu:Find(req.menu.id);

@@ -1,5 +1,3 @@
-local SendNUIMessage <const> = SendNUIMessage;
-
 exports('SendNUIMessage', function(message)
   local resource = GetInvokingResource();
 
