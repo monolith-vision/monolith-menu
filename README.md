@@ -1,5 +1,9 @@
 # monolith-menu
 
+# Todo
+- [ ] Add JS Support
+- [ ] Add Markdown Support
+
 # Types
 ```ts
 type MenuComponentTypes = 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox';
