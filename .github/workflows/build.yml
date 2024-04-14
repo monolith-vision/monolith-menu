@@ -30,12 +30,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: web
-          path: ./web/build
+          path: ./web/dist
       - name: Add artifact to release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./web/build
+          asset_path: ./web/dist
           asset_name: monolith-menu
           asset_content_type: application/zip
 
