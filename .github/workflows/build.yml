@@ -1,10 +1,13 @@
 name: Build
-on:
-  release
+on: release
 defaults:
   run:
     working-directory: ./web
 
+permissions:
+  contents: read
+  deployments: write
+  
 
 jobs:
   build:
@@ -38,4 +41,3 @@ jobs:
           asset_path: ./web/dist
           asset_name: monolith-menu
           asset_content_type: application/zip
-
