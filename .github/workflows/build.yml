@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v3
 
@@ -25,8 +28,8 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v3
         with:
-          name: build
-          path: web/dist
+          name: builded-files
+          path: ./dist
