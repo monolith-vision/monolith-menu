@@ -1,0 +1,32 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+defaults:
+  run:
+    working-directory: ./web
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./web
+
+      - name: Build project
+        run: npm run build
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: web/dist
