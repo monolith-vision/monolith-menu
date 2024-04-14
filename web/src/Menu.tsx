@@ -209,6 +209,19 @@ export default function Menu() {
 		});
 	}, [selectedIndex, menu]);
 
+	// https://web.archive.org/web/20110806041156/http://forums.devshed.com/javascript-development-115/regexp-to-match-url-pattern-493764.html
+	const isUrl = (str?: string) =>
+		str &&
+		new RegExp(
+			'^(https?:\\/\\/)?' + // protocol
+				'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+				'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+				'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+				'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+				'(\\#[-a-z\\d_]*)?$',
+			'i',
+		).test(str);
+
 	return (
 		<CSSTransition
 			in={display}
@@ -230,7 +243,9 @@ export default function Menu() {
 						},
 					)}
 					style={{
-						background: menu?.banner,
+						background: isUrl(menu?.banner)
+							? `url(${menu?.banner})`
+							: menu?.banner,
 						backgroundPosition: 'center',
 						backgroundSize: 'cover',
 					}}
