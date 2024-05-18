@@ -1,4 +1,4 @@
-local menuResources = {};
+local resources = {};
 
 exports('SendNUIMessage', function(message)
   local resource = GetInvokingResource();
@@ -7,40 +7,45 @@ exports('SendNUIMessage', function(message)
     return;
   end
 
-  menuResources[resource] = true;
+  resources[resource] = true;
 
   SendNUIMessage(message);
 end);
 
 local nuiCallbacks = {
-  'onChange',
-  'onCheck',
-  'onClick',
-  'onComponentSelect',
-  'Back',
-  'Exit'
+  dialog = {
+    'submit'
+  },
+  menu = {
+    'onChange',
+    'onCheck',
+    'onClick',
+    'onComponentSelect',
+    'Back',
+    'Exit'
+  }
 };
 
-for _, name in next, nuiCallbacks do
-  RegisterNUICallback(name, function(req, resp)
-    if not req.menu or not req.menu.__resource then
-      SendNUIMessage({ action = 'SetMenu' });
+for prefix, callbacks in next, nuiCallbacks do
+  for _, name in next, callbacks do
+    RegisterNUICallback(prefix .. ':' .. name, function(req, resp)
+      if not req[prefix] or not req[prefix].__resource then
+        return resp('OK');
+      end
 
-      return resp('OK');
-    end
+      local import <const> = exports[req[prefix].__resource];
 
-    local import <const> = exports[req.menu.__resource];
+      if not import then
+        return resp('OK');
+      end
 
-    if not import then
-      return resp('OK');
-    end
-
-    import:OnNUICallback(name, req, resp);
-  end);
+      import:OnNUICallback(prefix, name, req, resp);
+    end);
+  end
 end
 
 AddEventHandler('onResourceStop', function(resource)
-  if menuResources[resource] then
+  if resources[resource] then
     SendNUIMessage({ action = 'SetMenu' });
   end
 end);
