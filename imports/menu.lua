@@ -85,7 +85,7 @@ function Menu:Show(menu)
 
   SendNUIMessage({
     action = 'SetMenu',
-    data = { menu = menu },
+    data = menu,
   });
 end
 
@@ -94,10 +94,7 @@ function Menu:Hide()
   self.cached = {};
   self.last = {};
 
-  SendNUIMessage({
-    action = 'SetMenu',
-    data = {}
-  });
+  SendNUIMessage({ action = 'SetMenu' });
 end
 
 ---@param value string
@@ -339,10 +336,15 @@ local needsComponents <const> = {
   onClick = true
 };
 
+---@param prefix 'dialog' | 'menu'
 ---@param action 'onChange' | 'onCheck' | 'onClick' | 'onComponentSelect' | 'Back' | 'Exit'
 ---@param req { component?: MenuComponentJSON, menu: MenuJSON }
 ---@param resp function
-exports('OnNUICallback', function(action, req, resp)
+exports('OnNUICallback', function(prefix, action, req, resp)
+  if prefix ~= 'menu' then
+    return;
+  end
+
   local menu = Menu:Find(req.menu.id);
 
   if not menu then
@@ -408,50 +410,4 @@ exports('OnNUICallback', function(action, req, resp)
   PlaySoundFrontend(-1, 'BACK', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true);
 
   resp('OK');
-end);
-
-Citizen.CreateThreadNow(function()
-  local keys = {
-    ArrowUp = { key = 188, mapper = 'UP' },
-    ArrowDown = { key = 187, mapper = 'DOWN' },
-    ArrowLeft = { key = 189, mapper = 'LEFT' },
-    ArrowRight = { key = 190, mapper = 'RIGHT' },
-    Enter = { key = 191, mapper = 'RETURN' },
-    Backspace = { key = 194, mapper = 'BACK' },
-    Escape = { key = 200, mapper = 'ESCAPE' }
-  };
-
-  ---@param name string
-  local function sendKey(name)
-    SendNUIMessage({ action = name });
-  end
-
-  ---@param name string
-  ---@param data { key: number; mapper: string }
-  local function registerInput(name, data)
-    RegisterCommand('menu:' .. name, function()
-      if not Menu.current then
-        return;
-      end
-
-      DisableControlAction(0, data.key, true);
-      SetPauseMenuActive(false);
-
-      repeat
-        sendKey(name);
-
-        if name == 'Escape' then
-          return;
-        end
-
-        Citizen.Wait(120);
-      until IsDisabledControlReleased(0, data.key)
-    end, false);
-
-    RegisterKeyMapping('menu:' .. name, name, 'keyboard', data.mapper);
-  end
-
-  for name, data in next, keys do
-    registerInput(name, data);
-  end
 end);
