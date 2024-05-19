@@ -12,9 +12,12 @@ exports('SendNUIMessage', function(message)
   SendNUIMessage(message);
 end);
 
+exports('SetNuiFocus', SetNuiFocus);
+
 local nuiCallbacks = {
   dialog = {
-    'submit'
+    'Submit',
+    'Close'
   },
   menu = {
     'onChange',
@@ -47,5 +50,6 @@ end
 AddEventHandler('onResourceStop', function(resource)
   if resources[resource] then
     SendNUIMessage({ action = 'SetMenu' });
+    SendNUIMessage({ action = 'SetDialog' });
   end
 end);
