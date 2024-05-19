@@ -18,7 +18,7 @@ import password from './components/password';
 import select from './components/select';
 import text from './components/text';
 import textarea from './components/textarea';
-import { debugData, fetchNui, useNuiEvent } from '@/lib';
+import { debugData, fetchNui, useKeyUp, useNuiEvent } from '@/lib';
 
 const componentMap: Record<
 	DialogComponentTypes,
@@ -224,14 +224,23 @@ export default function InputDialog() {
 		)
 			return;
 
-		await fetchNui('dialog:submit', current);
+		await fetchNui('dialog:Submit', current);
 		setCurrent(undefined);
 	};
+
+	useKeyUp('Escape', () => {
+		setCurrent(undefined);
+		fetchNui('dialog:Close');
+	});
 
 	return (
 		<Dialog
 			open={current !== undefined}
-			onOpenChange={(b) => !b && setCurrent(undefined)}
+			onOpenChange={(b) => {
+				if (b) return;
+
+				fetchNui('dialog:Close');
+			}}
 			modal={false}
 		>
 			<DialogContent className="max-w-sm px-0">
