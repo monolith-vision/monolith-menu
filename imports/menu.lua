@@ -342,7 +342,7 @@ local needsComponents <const> = {
 ---@param resp function
 exports('OnNUICallback', function(prefix, action, req, resp)
   if prefix ~= 'menu' then
-    return;
+    return resp('OK');
   end
 
   local menu = Menu:Find(req.menu.id);
