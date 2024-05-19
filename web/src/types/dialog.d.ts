@@ -21,7 +21,7 @@ type DialogComponentValues =
 	| number
 	| boolean
 	| ColorArray
-	| SelectValue[];
+	| SelectValue;
 
 interface DialogComponentBase {
 	id: string;
