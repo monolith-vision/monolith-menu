@@ -11,6 +11,10 @@ Citizen.CreateThreadNow(function()
 
   ---@param name string
   local function sendKey(name)
+    if IsNuiFocused() then
+      return;
+    end
+
     SendNUIMessage({ action = name });
   end
 
