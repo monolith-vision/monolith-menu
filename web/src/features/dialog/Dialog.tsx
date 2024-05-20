@@ -236,19 +236,17 @@ export default function InputDialog() {
 		setCurrent(undefined);
 	};
 
-	useKeyUp('Escape', () => {
+	const close = () => {
 		setCurrent(undefined);
 		fetchNui('dialog:Close', { dialog: current });
-	});
+	};
+
+	useKeyUp('Escape', close);
 
 	return (
 		<Dialog
 			open={current !== undefined}
-			onOpenChange={(b) => {
-				if (b) return;
-
-				fetchNui('dialog:Close', { dialog: current });
-			}}
+			onOpenChange={(b) => !b && close()}
 			modal={false}
 		>
 			<DialogContent className="max-w-sm px-0 dark">
