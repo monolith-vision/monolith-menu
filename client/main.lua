@@ -1,4 +1,8 @@
-local resources = {};
+Resources = {};
+Last = {
+  menu = nil,
+  dialog = nil
+};
 
 exports('SendNUIMessage', function(message)
   local resource = GetInvokingResource();
@@ -7,7 +11,17 @@ exports('SendNUIMessage', function(message)
     return;
   end
 
-  resources[resource] = true;
+  if not Resources[resource] then
+    Resources[resource] = {
+      menu = message.action == 'SetMenu' and message.data?.id,
+      dialog = message.action == 'SetDialog' and message.data?.id,
+    };
+  end
+
+  local prop = message.action == 'SetMenu' and 'menu' or 'dialog';
+  Resources[resource][prop] = message.action == 'SetMenu' and message.data?.id;
+
+  Last[prop] = message.data?.id;
 
   SendNUIMessage(message);
 end);
@@ -42,14 +56,35 @@ for prefix, callbacks in next, nuiCallbacks do
         return resp('OK');
       end
 
-      import:OnNUICallback(prefix, name, req, resp);
+      if prefix == 'menu' then
+        import:OnMenuCallback(name, req, resp);
+
+        if name == 'Exit' then
+          Last.menu = nil;
+        end
+
+        return;
+      end
+
+      import:OnDialogCallback(name, req, resp);
+
+      if name == 'Close' then
+        Last.dialog = nil;
+      end
     end);
   end
 end
 
 AddEventHandler('onResourceStop', function(resource)
-  if resources[resource] then
+  if not Resources[resource] then
+    return;
+  end
+
+  if Resources[resource].menu == Last.menu then
     SendNUIMessage({ action = 'SetMenu' });
+  end
+
+  if Resources[resource].dialog == Last.dialog then
     SendNUIMessage({ action = 'SetDialog' });
   end
 end);

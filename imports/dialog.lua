@@ -2,14 +2,11 @@
 
 ---@alias ColorArray number[]
 
--- TODO: Convert Date in NUI and add types
----@class Date
-
 ---@class SelectValue
 ---@field label string?
 ---@field value string
 
----@alias DialogComponentValues string | Date | number | boolean | ColorArray | SelectValue
+---@alias DialogComponentValues string | number | boolean | ColorArray | SelectValue
 
 ---@class DialogComponent
 ---@field componentType DialogComponentTypes
@@ -25,7 +22,6 @@
 
 ---@class Dialog
 ---@field __resource string,
----@field __index number
 ---@field id string
 ---@field title string,
 ---@field description string?
@@ -70,7 +66,6 @@ end
 function Dialog:Create(dialogTitle, dialogDescription, submitLabel, cancelLabel)
   local dialog = {
     __resource = RESOURCE,
-    __index = #self.cached,
     id = self:UUID('dialog_xxyyxx-yyxxyy'),
     title = dialogTitle,
     description = dialogDescription,
@@ -151,16 +146,15 @@ function Dialog:Create(dialogTitle, dialogDescription, submitLabel, cancelLabel)
   ---@param label string
   ---@param description string?
   ---@param defaultValue ColorArray?
-  ---@param required boolean?
   ---@return DialogComponent
-  function dialog:AddColorInput(label, description, defaultValue, required)
-    return self:addComponent('color', label, description, nil, nil, defaultValue, nil, nil, required);
+  function dialog:AddColorInput(label, description, defaultValue)
+    return self:addComponent('color', label, description, nil, nil, defaultValue, nil, nil, true);
   end
 
   ---@param label string
   ---@param description string?
   ---@param placeholder string?
-  ---@param defaultValue ColorArray?
+  ---@param defaultValue number?
   ---@param required boolean?
   ---@return DialogComponent
   function dialog:AddDateInput(label, description, placeholder, defaultValue, required)
@@ -227,7 +221,6 @@ function Dialog:Create(dialogTitle, dialogDescription, submitLabel, cancelLabel)
   function dialog:toJSON()
     return {
       __resource = self.__resource,
-      __index = self.__index,
       id = self.id,
       title = self.title,
       description = self.description,
@@ -263,19 +256,14 @@ function Dialog:Show(dialog)
   SetNuiFocus(true, true);
 end
 
----@param prefix 'dialog' | 'menu'
 ---@param action 'Close' | 'Submit'
----@param req {  }
+---@param req? { dialog: Dialog; values: DialogComponentValues[] }
 ---@param resp function
-exports('OnNUICallback', function(prefix, action, req, resp)
-  if prefix ~= 'dialog' then
-    return resp('OK');
-  end
-
+exports('OnDialogCallback', function(action, req, resp)
   SetNuiFocus(false, false);
 
-  if action == 'submit' then
-    Dialog.cachedPromises[req.id]:resolve(req.components);
+  if action == 'Submit' and req then
+    Dialog.cachedPromises[req.dialog.id]:resolve(req.values);
   end
 
   resp('OK');

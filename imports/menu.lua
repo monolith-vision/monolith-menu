@@ -336,15 +336,10 @@ local needsComponents <const> = {
   onClick = true
 };
 
----@param prefix 'dialog' | 'menu'
 ---@param action 'onChange' | 'onCheck' | 'onClick' | 'onComponentSelect' | 'Back' | 'Exit'
 ---@param req { component?: MenuComponentJSON, menu: MenuJSON }
 ---@param resp function
-exports('OnNUICallback', function(prefix, action, req, resp)
-  if prefix ~= 'menu' then
-    return resp('OK');
-  end
-
+exports('OnMenuCallback', function(action, req, resp)
   local menu = Menu:Find(req.menu.id);
 
   if not menu then
