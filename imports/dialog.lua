@@ -263,6 +263,7 @@ exports('OnDialogCallback', function(action, req, resp)
   SetNuiFocus(false, false);
 
   Dialog.cachedPromises[req.dialog.id]:resolve(req.values);
+  Dialog.current = nil;
 
   resp('OK');
 end);

@@ -57,20 +57,18 @@ for prefix, callbacks in next, nuiCallbacks do
       end
 
       if prefix == 'menu' then
-        import:OnMenuCallback(name, req, resp);
-
         if name == 'Exit' then
           Last.menu = nil;
         end
 
-        return;
+        return import:OnMenuCallback(name, req, resp)
       end
-
-      import:OnDialogCallback(name, req, resp);
 
       if name == 'Close' then
         Last.dialog = nil;
       end
+
+      import:OnDialogCallback(name, req, resp);
     end);
   end
 end
@@ -80,11 +78,11 @@ AddEventHandler('onResourceStop', function(resource)
     return;
   end
 
-  if Resources[resource].menu == Last.menu then
+  if Resources[resource].menu and Resources[resource].menu == Last.menu then
     SendNUIMessage({ action = 'SetMenu' });
   end
 
-  if Resources[resource].dialog == Last.dialog then
+  if Resources[resource].dialog and Resources[resource].dialog == Last.dialog then
     SendNUIMessage({ action = 'SetDialog' });
   end
 end);
