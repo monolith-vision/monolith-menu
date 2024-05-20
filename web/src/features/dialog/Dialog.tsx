@@ -247,7 +247,7 @@ export default function InputDialog() {
 			onOpenChange={(b) => {
 				if (b) return;
 
-				fetchNui('dialog:Close');
+				fetchNui('dialog:Close', { dialog: current });
 			}}
 			modal={false}
 		>
