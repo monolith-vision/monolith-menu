@@ -14,4 +14,7 @@ files {
   'imports/dialog.lua'
 }
 
-client_script 'client/main.lua'
+client_scripts {
+  'client/main.lua',
+  'client/keys.lua'
+}
