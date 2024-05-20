@@ -268,7 +268,7 @@ export default function Menu() {
 		>
 			<Card
 				className={cn(
-					'w-[450px] m-4 absolute transition-height duration-150 ease-in-out pointer-events-none',
+					'w-[450px] m-4 absolute transition-height duration-150 ease-in-out pointer-events-none dark',
 					current?.position ?? lastPos,
 				)}
 			>

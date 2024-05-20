@@ -251,7 +251,7 @@ export default function InputDialog() {
 			}}
 			modal={false}
 		>
-			<DialogContent className="max-w-sm px-0">
+			<DialogContent className="max-w-sm px-0 dark">
 				<DialogHeader className="items-center mb-2">
 					<DialogTitle className="text-lg">
 						{current?.title}
