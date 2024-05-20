@@ -11,16 +11,12 @@ Citizen.CreateThreadNow(function()
 
   ---@param name string
   local function sendKey(name)
-    if IsNuiFocused() then
-      return;
-    end
-
     SendNUIMessage({ action = name });
   end
 
   for name, data in next, keys do
     RegisterCommand('menu:' .. name, function()
-      if not Menu.current then
+      if Last.dialog and IsNuiFocused() then
         return;
       end
 
