@@ -257,14 +257,12 @@ function Dialog:Show(dialog)
 end
 
 ---@param action 'Close' | 'Submit'
----@param req? { dialog: Dialog; values: DialogComponentValues[] }
+---@param req { dialog: Dialog; values: DialogComponentValues[] }
 ---@param resp function
 exports('OnDialogCallback', function(action, req, resp)
   SetNuiFocus(false, false);
 
-  if action == 'Submit' and req then
-    Dialog.cachedPromises[req.dialog.id]:resolve(req.values);
-  end
+  Dialog.cachedPromises[req.dialog.id]:resolve(req.values);
 
   resp('OK');
 end);
