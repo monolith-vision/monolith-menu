@@ -15,13 +15,8 @@ interface SelectValue {
 	value: string;
 }
 
-type DialogComponentValues =
-	| string
-	| Date
-	| number
-	| boolean
-	| ColorArray
-	| SelectValue;
+type DialogComponentValues = string | Date | number | boolean | ColorArray;
+type DialogComponentDefaultValues = string | number | boolean | ColorArray;
 
 interface DialogComponentBase {
 	id: string;
@@ -32,7 +27,7 @@ interface DialogComponentBase {
 	valid?: boolean;
 	values: SelectValue[];
 	value?: DialogComponentValues;
-	defaultValue?: DialogComponentValues;
+	defaultValue?: DialogComponentDefaultValues;
 	min?: number;
 	max?: number;
 	required?: boolean;
@@ -56,7 +51,7 @@ interface DialogTextComponent extends DialogComponentBase {
 	defaultValue?: string;
 }
 
-interface DialogPasswordComponent extends DialogComponentBase {
+interface DialogPasswordComponent extends DialogTextComponent {
 	type: 'password';
 }
 
@@ -79,7 +74,7 @@ interface DialogColorComponent extends DialogComponentBase {
 interface DialogDateComponent extends DialogComponentBase {
 	type: 'date';
 	value?: Date;
-	defaultValue?: Date;
+	defaultValue?: number;
 }
 
 interface DialogCheckboxComponent extends DialogComponentBase {
@@ -90,7 +85,7 @@ interface DialogCheckboxComponent extends DialogComponentBase {
 
 interface DialogSelectComponent extends DialogComponentBase {
 	type: 'select';
-	value?: SelectValue;
+	value?: string;
 	defaultValue?: string;
 }
 
@@ -138,7 +133,7 @@ interface DialogColorComponentProps extends DialogComponentPropsBase {
 interface DialogDateComponentProps extends DialogComponentPropsBase {
 	type: 'date';
 	value?: Date;
-	defaultValue?: Date;
+	defaultValue?: number;
 }
 
 interface DialogCheckboxComponentProps extends DialogComponentPropsBase {
@@ -147,10 +142,8 @@ interface DialogCheckboxComponentProps extends DialogComponentPropsBase {
 	defaultValue?: boolean;
 }
 
-interface DialogSelectComponentProps extends DialogComponentBase {
+interface DialogSelectComponentProps extends DialogTextComponentProps {
 	type: 'select';
-	value?: SelectValue;
-	defaultValue?: string;
 }
 
 type DialogComponentProps =
