@@ -1,17 +1,20 @@
 import ReactDOM from 'react-dom/client';
-import Menu from './Menu';
+import { isEnvBrowser } from './lib';
+
+// Styles
 import './styles/globals.css';
 import './styles/fonts.css';
 import './styles/transitions.css';
 
-const console_error = console.error;
+// Components
+import Menu from '@/features/menu/Menu';
+import InputDialog from '@/features/dialog/Dialog';
 
-console.error = (..._args) => {
-	const args = [..._args];
+if (isEnvBrowser) document.body.style.backgroundColor = '#1e1e1e';
 
-	if (args[0]?.search('createRoot()') > -1) return;
-
-	console_error(...args);
-};
-
-ReactDOM.createRoot(document.body).render(<Menu />);
+ReactDOM.createRoot(document.body).render(
+	<>
+		<Menu />
+		<InputDialog />
+	</>,
+);

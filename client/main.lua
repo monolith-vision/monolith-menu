@@ -1,4 +1,8 @@
-local menuResources = {};
+Resources = {};
+Last = {
+  menu = nil,
+  dialog = nil
+};
 
 exports('SendNUIMessage', function(message)
   local resource = GetInvokingResource();
@@ -7,40 +11,78 @@ exports('SendNUIMessage', function(message)
     return;
   end
 
-  menuResources[resource] = true;
+  if not Resources[resource] then
+    Resources[resource] = {
+      menu = message.action == 'SetMenu' and message.data?.id,
+      dialog = message.action == 'SetDialog' and message.data?.id,
+    };
+  end
+
+  local prop = message.action == 'SetMenu' and 'menu' or 'dialog';
+  Resources[resource][prop] = message.action == 'SetMenu' and message.data?.id;
+
+  Last[prop] = message.data?.id;
 
   SendNUIMessage(message);
 end);
 
+exports('SetNuiFocus', SetNuiFocus);
+
 local nuiCallbacks = {
-  'onChange',
-  'onCheck',
-  'onClick',
-  'onComponentSelect',
-  'Back',
-  'Exit'
+  dialog = {
+    'Submit',
+    'Close'
+  },
+  menu = {
+    'onChange',
+    'onCheck',
+    'onClick',
+    'onComponentSelect',
+    'Back',
+    'Exit'
+  }
 };
 
-for _, name in next, nuiCallbacks do
-  RegisterNUICallback(name, function(req, resp)
-    if not req.menu or not req.menu.__resource then
-      SendNUIMessage({ action = 'SetMenu' });
+for prefix, callbacks in next, nuiCallbacks do
+  for _, name in next, callbacks do
+    RegisterNUICallback(prefix .. ':' .. name, function(req, resp)
+      if not req[prefix] or not req[prefix].__resource then
+        return resp('OK');
+      end
 
-      return resp('OK');
-    end
+      local import <const> = exports[req[prefix].__resource];
 
-    local import <const> = exports[req.menu.__resource];
+      if not import then
+        return resp('OK');
+      end
 
-    if not import then
-      return resp('OK');
-    end
+      if prefix == 'menu' then
+        if name == 'Exit' then
+          Last.menu = nil;
+        end
 
-    import:OnNUICallback(name, req, resp);
-  end);
+        return import:OnMenuCallback(name, req, resp)
+      end
+
+      if name == 'Close' then
+        Last.dialog = nil;
+      end
+
+      import:OnDialogCallback(name, req, resp);
+    end);
+  end
 end
 
 AddEventHandler('onResourceStop', function(resource)
-  if menuResources[resource] then
+  if not Resources[resource] then
+    return;
+  end
+
+  if Resources[resource].menu and Resources[resource].menu == Last.menu then
     SendNUIMessage({ action = 'SetMenu' });
+  end
+
+  if Resources[resource].dialog and Resources[resource].dialog == Last.dialog then
+    SendNUIMessage({ action = 'SetDialog' });
   end
 end);

@@ -115,3 +115,9 @@ html {
 		@apply bg-background text-foreground;
 	}
 }
+
+::-webkit-scrollbar,
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+	display: none;
+}

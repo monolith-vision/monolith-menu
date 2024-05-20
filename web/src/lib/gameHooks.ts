@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
-import { noop } from './utils';
+import { noop } from './constants';
 
 export const useNuiEvent = <T = unknown>(
 	action: string,
@@ -23,28 +23,4 @@ export const useNuiEvent = <T = unknown>(
 		window.addEventListener('message', eventListener);
 		return () => window.removeEventListener('message', eventListener);
 	}, [action]);
-};
-
-export const useKeyEvent = (
-	key: string | string[],
-	handler: (data: KeyboardEvent) => void,
-) => {
-	const savedHandler: MutableRefObject<(e: KeyboardEvent) => unknown> =
-		useRef(noop);
-
-	useEffect(() => {
-		savedHandler.current = handler;
-	}, [handler]);
-
-	useEffect(() => {
-		const keyListener = (event: KeyboardEvent) => {
-			if (savedHandler.current) {
-				if (event.key === key || key.includes(event.key))
-					savedHandler.current(event);
-			}
-		};
-
-		window.addEventListener('keydown', keyListener);
-		return () => window.removeEventListener('keydown', keyListener);
-	}, [key]);
 };
