@@ -14,7 +14,7 @@ export default function PasswordInput({
 	max,
 	setValue,
 	setValidity,
-}: DialogTextComponentProps) {
+}: DialogPasswordComponentProps) {
 	const [visible, toggleVisiblity] = useState(false);
 
 	return (

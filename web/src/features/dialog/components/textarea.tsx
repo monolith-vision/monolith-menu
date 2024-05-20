@@ -11,7 +11,7 @@ export default function TextInput({
 	max,
 	setValue,
 	setValidity,
-}: DialogTextComponentProps) {
+}: DialogTextareaComponentProps) {
 	return (
 		<InputWrapper
 			label={label}

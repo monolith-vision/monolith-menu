@@ -22,7 +22,7 @@ import { debugData, fetchNui, useKeyUp, useNuiEvent } from '@/lib';
 
 const componentMap: Record<
 	DialogComponentTypes,
-	(props: DialogComponentProps) => JSX.Element | null
+	(props: DialogComponentProps) => JSX.Element
 	// @ts-expect-error DES
 > = { text, number, password, color, date, checkbox, textarea, select };
 
@@ -68,7 +68,9 @@ export default function InputDialog() {
 		if (!dialog) return setCurrent(undefined);
 
 		dialog.components.map((component) => {
-			component.value = component.defaultValue;
+			if (component.type === 'date' && component.defaultValue)
+				component.value = new Date(component.defaultValue);
+			else component.value = component.defaultValue;
 
 			return component;
 		});
@@ -224,13 +226,19 @@ export default function InputDialog() {
 		)
 			return;
 
-		await fetchNui('dialog:Submit', current);
+		const values = current.components.map((component) =>
+			component.type === 'date'
+				? component.value?.getTime()
+				: component.value,
+		);
+
+		await fetchNui('dialog:Submit', { dialog: current, values });
 		setCurrent(undefined);
 	};
 
 	useKeyUp('Escape', () => {
 		setCurrent(undefined);
-		fetchNui('dialog:Close');
+		fetchNui('dialog:Close', { dialog: current });
 	});
 
 	return (
@@ -259,7 +267,6 @@ export default function InputDialog() {
 						const Component = componentMap[component.type];
 
 						return (
-							// @ts-expect-error DES
 							<Component
 								key={component.id}
 								setValue={setValue(component.id)}

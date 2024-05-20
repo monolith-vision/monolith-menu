@@ -18,7 +18,7 @@ export default function SelectInput({
 	valid,
 	setValue,
 	setValidity,
-}: DialogTextComponentProps) {
+}: DialogSelectComponentProps) {
 	return (
 		<InputWrapper
 			label={label}

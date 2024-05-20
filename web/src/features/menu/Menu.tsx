@@ -25,7 +25,7 @@ const componentMap: Record<
 export default function Menu() {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [current, setCurrent] = useState<Menu | undefined>();
-	const [display, toggleDisplay] = useState(true);
+	const [display, toggleDisplay] = useState(false);
 	const [lastPos, setLastPos] = useState<MenuPositions>('top-left');
 
 	const ArrowUp = () => {
@@ -82,9 +82,9 @@ export default function Menu() {
 			if (component.value === -1)
 				component.value = (component.values?.length ?? 0) - 1;
 
-			fetchNui('current:onChange', {
+			fetchNui('menu:onChange', {
 				component,
-				current,
+				menu: current,
 			});
 
 			return { ...current };
@@ -113,9 +113,9 @@ export default function Menu() {
 			if (component.value === component.values?.length)
 				component.value = 0;
 
-			fetchNui('current:onChange', {
+			fetchNui('menu:onChange', {
 				component,
-				current,
+				menu: current,
 			});
 
 			return { ...current };
@@ -134,31 +134,31 @@ export default function Menu() {
 
 			component.checked = !component.checked;
 
-			fetchNui('current:onCheck', {
+			fetchNui('menu:onCheck', {
 				component,
-				current,
+				menu: current,
 			});
 
 			return { ...current };
 		});
 
 		if (!['slider', 'placeholder'].includes(component.type))
-			await fetchNui('current:onClick', {
+			await fetchNui('menu:onClick', {
 				component,
-				current,
+				menu: current,
 			});
 	};
 	useKeyDown('Enter', Enter);
 	useNuiEvent('Enter', Enter);
 
 	const Backspace = async () => {
-		await fetchNui('current:Back', { current });
+		await fetchNui('menu:Back', { menu: current });
 	};
 	useKeyDown('Backspace', Backspace);
 	useNuiEvent('Backspace', Backspace);
 
 	const Escape = async () => {
-		await fetchNui('current:Exit', { current });
+		await fetchNui('menu:Exit', { menu: current });
 	};
 	useKeyDown('Escape', Escape);
 	useNuiEvent('Escape', Escape);
@@ -193,9 +193,9 @@ export default function Menu() {
 
 		component.index = selectedIndex;
 
-		fetchNui('current:onComponentSelect', {
+		fetchNui('menu:onComponentSelect', {
 			component,
-			current,
+			menu: current,
 		});
 	}, [selectedIndex, current]);
 
