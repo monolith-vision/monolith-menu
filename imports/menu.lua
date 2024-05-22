@@ -1,3 +1,7 @@
+if IsDuplicityVersion() then
+  return error('The menu imports can only be run on th client', 2);
+end
+
 ---@alias MenuComponentTypes 'placeholder' | 'button' | 'submenu' | 'slider' | 'list' | 'checkbox'
 ---@alias MenuComponentAction 'change' | 'click' | 'check'
 ---@alias MenuPositions 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
@@ -36,7 +40,7 @@
 ---@class Menu:MenuJSON
 ---@field private addComponent fun(self: self, componentType: MenuComponentTypes, label: string, description: string?, values: string[]?, value: number?, step: number?, min: number?, max: number?, checked: boolean?, subMenuId: string?): MenuComponent
 ---@field FindComponent fun(self: self, value: string): MenuComponent?
----@field RemoveComponent fun(self: self, component: MenuComponentJSON): boolean
+---@field RemoveComponent fun(self: self, componentId: string): boolean
 ---@field AddPlaceholder fun(self: self, label: string): MenuComponent
 ---@field AddButton fun(self: self, label: string, description: string?): MenuComponent
 ---@field AddSubmenu fun(self: self, subMenu: MenuJSON | Menu, label: string, description: string?): MenuComponent
@@ -64,7 +68,7 @@ Menu = {
 
 ---@param template string
 ---@return string
-function Menu:UUID(template)
+local function createUUID(template)
   local uuid <const> = string.gsub(template, '[xy]', function(c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb);
 
@@ -120,7 +124,7 @@ function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
   local menu = {
     __resource = RESOURCE,
     __index = #self.cached + 1,
-    id = self:UUID('menu_xxyyxx-yyxxyy'),
+    id = createUUID('menu_xxyyxx-yyxxyy'),
     title = menuTitle,
     description = menuDescription,
     position = menuPosition or 'top-left',
@@ -148,7 +152,7 @@ function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
         click = {},
         check = {}
       },
-      id = Menu:UUID('component-' .. componentType .. '_xxyyxx-yyxxyy'),
+      id = createUUID('component-' .. componentType .. '_xxyyxx-yyxxyy'),
       type = componentType,
       label = label,
       description = description,
@@ -213,15 +217,15 @@ function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
     end
   end
 
-  ---@param component MenuComponentJSON
+  ---@param componentId string
   ---@return boolean
-  function menu:RemoveComponent(component)
-    if not component then
+  function menu:RemoveComponent(componentId)
+    if not componentId then
       return false;
     end
 
-    for _, comp in next, self.components do
-      if comp.id == component.id then
+    for _, component in next, self.components do
+      if component.id == componentId then
         table.remove(self.components, _);
         break;
       end
@@ -283,10 +287,7 @@ function Menu:Create(menuTitle, menuDescription, menuPosition, menuBanner)
     Menu:Show(self);
   end
 
-  function menu:Hide()
-    Menu:Hide();
-  end
-
+  ---@private
   ---@return MenuComponentJSON[]
   function menu:componentsToJSON()
     local components = {};

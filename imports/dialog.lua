@@ -1,3 +1,7 @@
+if IsDuplicityVersion() then
+  return error('The menu imports can only be run on th client', 2);
+end
+
 ---@alias DialogComponentTypes "number" | "text" | "password" | "color" | "date" | "checkbox" | "textarea" | "select"
 
 ---@alias ColorArray number[]
@@ -49,7 +53,7 @@ Dialog = {
 
 ---@param template string
 ---@return string
-function Dialog:UUID(template)
+local function createUUID(template)
   local uuid <const> = string.gsub(template, '[xy]', function(c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb);
 
@@ -66,7 +70,7 @@ end
 function Dialog:Create(dialogTitle, dialogDescription, submitLabel, cancelLabel)
   local dialog = {
     __resource = RESOURCE,
-    id = self:UUID('dialog_xxyyxx-yyxxyy'),
+    id = createUUID('dialog_xxyyxx-yyxxyy'),
     title = dialogTitle,
     description = dialogDescription,
     components = {},
@@ -87,7 +91,7 @@ function Dialog:Create(dialogTitle, dialogDescription, submitLabel, cancelLabel)
   ---@return DialogComponent
   function dialog:addComponent(type, label, description, placeholder, values, defaultValue, min, max, required)
     local component = {
-      id = Dialog:UUID('component-' .. type .. '_xxyyxx-yyxxyy'),
+      id = createUUID('component-' .. type .. '_xxyyxx-yyxxyy'),
       type = type,
       label = label,
       description = description,
