@@ -3,7 +3,7 @@ game 'gta5'
 lua54 'yes'
 
 author 'Open Source by Monolith Vision and Contributors'
-version '0.0.1 (BETA)'
+version '1.1.0'
 description 'A modern interaction menu with Lua API made for FiveM.'
 
 ui_page 'web/dist/index.html'
@@ -18,3 +18,5 @@ client_scripts {
   'client/main.lua',
   'client/keys.lua'
 }
+
+server_script 'version.lua'
