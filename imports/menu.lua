@@ -95,7 +95,6 @@ end
 
 function Menu:Hide()
   self.current = nil;
-  self.cached = {};
   self.last = {};
 
   SendNUIMessage({ action = 'SetMenu' });
